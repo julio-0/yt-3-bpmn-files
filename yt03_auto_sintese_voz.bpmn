@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1692iha" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+  <bpmn:process id="auto_yt03" name="Automação Troca Voz" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_18a6wcb</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_18a6wcb" sourceRef="StartEvent_1" targetRef="Gateway_0euuybt" />
+    <bpmn:serviceTask id="yt03_speech_to_text" name="Transcrever Vídeo" camunda:type="external" camunda:topic="yt03_speech_to_text">
+      <bpmn:extensionElements>
+        <camunda:executionListener event="start">
+          <camunda:script scriptFormat="Javascript">execution.setVariableLocal("t_video", execution.getVariable("video"));</camunda:script>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_09xmhey</bpmn:incoming>
+      <bpmn:outgoing>Flow_1qhwh2s</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true" camunda:collection="videos" camunda:elementVariable="video" />
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="yt03_text_to_speech" name="Sintetizar Voz" camunda:type="external" camunda:topic="yt03_text_to_speech">
+      <bpmn:incoming>Flow_002vpni</bpmn:incoming>
+      <bpmn:outgoing>Flow_0h6gjku</bpmn:outgoing>
+      <bpmn:outgoing>Flow_19ov2pz</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true" camunda:collection="txtFiles" camunda:elementVariable="txtFile" />
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="yt03_scan_videos" name="Pesquisar Pasta de Vídeos" camunda:type="external" camunda:topic="yt03_scan_videos">
+      <bpmn:incoming>Flow_0zmq6ut</bpmn:incoming>
+      <bpmn:outgoing>Flow_09xmhey</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0zmq6ut" sourceRef="Event_0426ohn" targetRef="yt03_scan_videos" />
+    <bpmn:intermediateCatchEvent id="Event_0426ohn">
+      <bpmn:incoming>Flow_0wpxp5m</bpmn:incoming>
+      <bpmn:outgoing>Flow_0zmq6ut</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_10knn6y">
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">R/PT30S</bpmn:timeCycle>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:exclusiveGateway id="Gateway_0euuybt">
+      <bpmn:incoming>Flow_18a6wcb</bpmn:incoming>
+      <bpmn:incoming>Flow_0h6gjku</bpmn:incoming>
+      <bpmn:outgoing>Flow_0wpxp5m</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0wpxp5m" sourceRef="Gateway_0euuybt" targetRef="Event_0426ohn" />
+    <bpmn:sequenceFlow id="Flow_0h6gjku" sourceRef="yt03_text_to_speech" targetRef="Gateway_0euuybt" />
+    <bpmn:serviceTask id="yt03_scan_txt_files" name="Pesquisar Pasta de Texto" camunda:type="external" camunda:topic="yt03_scan_txt_files">
+      <bpmn:incoming>Flow_1qhwh2s</bpmn:incoming>
+      <bpmn:outgoing>Flow_002vpni</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_09xmhey" sourceRef="yt03_scan_videos" targetRef="yt03_speech_to_text" />
+    <bpmn:sequenceFlow id="Flow_1qhwh2s" sourceRef="yt03_speech_to_text" targetRef="yt03_scan_txt_files" />
+    <bpmn:sequenceFlow id="Flow_002vpni" sourceRef="yt03_scan_txt_files" targetRef="yt03_text_to_speech" />
+    <bpmn:endEvent id="Event_0vpwz1n">
+      <bpmn:incoming>Flow_19ov2pz</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_19ov2pz" sourceRef="yt03_text_to_speech" targetRef="Event_0vpwz1n" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="auto_yt03">
+      <bpmndi:BPMNEdge id="Flow_19ov2pz_di" bpmnElement="Flow_19ov2pz">
+        <di:waypoint x="760" y="187" />
+        <di:waypoint x="812" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_002vpni_di" bpmnElement="Flow_002vpni">
+        <di:waypoint x="710" y="280" />
+        <di:waypoint x="710" y="227" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qhwh2s_di" bpmnElement="Flow_1qhwh2s">
+        <di:waypoint x="560" y="320" />
+        <di:waypoint x="660" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09xmhey_di" bpmnElement="Flow_09xmhey">
+        <di:waypoint x="510" y="227" />
+        <di:waypoint x="510" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0h6gjku_di" bpmnElement="Flow_0h6gjku">
+        <di:waypoint x="710" y="147" />
+        <di:waypoint x="710" y="80" />
+        <di:waypoint x="300" y="80" />
+        <di:waypoint x="300" y="162" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0wpxp5m_di" bpmnElement="Flow_0wpxp5m">
+        <di:waypoint x="325" y="187" />
+        <di:waypoint x="352" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zmq6ut_di" bpmnElement="Flow_0zmq6ut">
+        <di:waypoint x="388" y="187" />
+        <di:waypoint x="460" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18a6wcb_di" bpmnElement="Flow_18a6wcb">
+        <di:waypoint x="215" y="187" />
+        <di:waypoint x="275" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="169" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ebcb5i_di" bpmnElement="yt03_speech_to_text">
+        <dc:Bounds x="460" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1tq392i_di" bpmnElement="yt03_text_to_speech">
+        <dc:Bounds x="660" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0vbt0ih_di" bpmnElement="yt03_scan_videos">
+        <dc:Bounds x="460" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0pihh8w_di" bpmnElement="Event_0426ohn">
+        <dc:Bounds x="352" y="169" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0euuybt_di" bpmnElement="Gateway_0euuybt" isMarkerVisible="true">
+        <dc:Bounds x="275" y="162" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0a75axy_di" bpmnElement="yt03_scan_txt_files">
+        <dc:Bounds x="660" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0vpwz1n_di" bpmnElement="Event_0vpwz1n">
+        <dc:Bounds x="812" y="169" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
